@@ -1,16 +1,15 @@
-import React, { useRef } from "react";
+// import React, { useRef } from "react";
 
 import "./App.css";
 // const PayPalButton = window.paypal.Buttons.driver("react", { React, ReactDOM });
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 const initialOptions = {
-  clientId:
-    "AdoQUb986Cigyd6JiPQYo8h9S7Rh3TIwvQiAE4_4VAUJYHOZ25Fnfa2xC2FhxKwqfxMcx5X12x021RXJ",
-  currency: "PHP",
+  clientId: process.env.REACT_APP_PAYPAL_ID,
+  currency: process.env.REACT_APP_CURRENCY,
   intent: "capture",
 };
 function App() {
-  const textboxRef = useRef(null);
+  // const textboxRef = useRef(null);
   // function _createOrder(data, actions) {
   //   const amountDep = textboxRef.current.value;
   //   return actions.order.create({
@@ -39,27 +38,29 @@ function App() {
   //   window.ReactNativeWebView &&
   //     window.ReactNativeWebView.postMessage(JSON.stringify(errObj));
   // }
-
+  console.log(process.env.REACT_APP_PAYPAL_ID);
   return (
     <div className="App">
       <PayPalScriptProvider options={initialOptions}>
-        <input
+        {/* <input
           type="text"
           placeholder="Enter amount to deposite"
           ref={textboxRef}
           className="input"
-        />
+        /> */}
         <PayPalButtons
           style={{ layout: "horizontal" }}
           createOrder={async (data, actions) => {
-            const textboxValue = textboxRef.current.value;
+            // const textboxValue = textboxRef.current.value;
+            const urlParams = new URLSearchParams(window.location.search);
+            const amount = urlParams.get("amount");
             return await actions.order
               .create({
                 purchase_units: [
                   {
                     amount: {
                       currency_code: initialOptions.currency,
-                      value: parseInt(textboxValue).toFixed(2),
+                      value: parseInt(amount).toFixed(2),
                     },
                     description: "Deposite",
                   },
@@ -75,6 +76,11 @@ function App() {
             window.ReactNativeWebView &&
               window.ReactNativeWebView.postMessage(JSON.stringify(order));
             return order;
+          }}
+          onError={(error) => {
+            console.log(error);
+            window.ReactNativeWebView &&
+              window.ReactNativeWebView.postMessage(JSON.stringify(error));
           }}
         />
       </PayPalScriptProvider>
